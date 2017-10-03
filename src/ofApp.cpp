@@ -6,11 +6,12 @@ void ofApp::setup(){
 	int w = 100; 
 	int h = 30;
 	gui.setup();
+	gui.setPosition(30, 360);
 	gui.add(choices.setup("choices", 0, 0, 3));
 	gui.add(threshold.setup("threshold", 30, 10, 100));
 	gui.add(numChunk.setup("numChunk", 60, 10, 100));
-	gui.add(alpha.setup("alpha", .5, 0, 1));
-	gui.add(rando.setup("rando", false));
+	gui.add(alpha.setup("alpha", .2, 0, 1));
+	gui.add(rando.setup("noise colors", false));
 
 	const std::string file = "videos/ny.mp4";
 	glitch = GlitchOperator(file);	
