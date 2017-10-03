@@ -1,6 +1,8 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxGui.h"
+#include "GlitchOperator.h"
 
 class ofApp : public ofBaseApp{
 
@@ -21,4 +23,12 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 		
+		GlitchOperator glitch;
+
+		ofxPanel gui;
+		ofxIntSlider choices;
+		ofxIntSlider numChunk;
+		ofxIntSlider threshold;
+		ofxFloatSlider alpha;
+		ofxToggle rando;
 };
