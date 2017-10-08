@@ -1,5 +1,6 @@
 #include "ofApp.h"
 
+ofVideoPlayer vid;
 //--------------------------------------------------------------
 void ofApp::setup(){
 	// init glitch op
@@ -14,6 +15,10 @@ void ofApp::setup(){
 	gui.add(rando.setup("noise colors", false));
 
 	const std::string file = "videos/ny.mp4";
+	//vid.load(file);
+	//vid.setLoopState(OF_LOOP_NORMAL);
+	//vid.play();
+
 	glitch = GlitchOperator(file);	
 }
 
@@ -25,7 +30,7 @@ void ofApp::update(){
 	glitch.numChunk = numChunk;
 	glitch.invert = rando;
 	glitch.update();
-
+	//vid.update();
 }
 
 //--------------------------------------------------------------
@@ -34,6 +39,7 @@ void ofApp::draw(){
 	i.setFromPixels(glitch.getPixels());
 	i.draw(0,0);
 	gui.draw();
+	//vid.draw(0,0);
 }
 
 //--------------------------------------------------------------
