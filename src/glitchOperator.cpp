@@ -8,11 +8,13 @@ GlitchOperator::GlitchOperator(std::string file) {
 	video.load(file);
 	video.setLoopState(OF_LOOP_NORMAL);
 	video.play();
-	imgWidth = video.getWidth();
-	numChunk = 30;
+	// set base values
+	maxNumChunk = 30;
 	thresh = 50;
 	alpha = .5;
-	choice = 0;
+	mode = 0;
+	yStep = 7;
+	divisor = 20;
 	invert = false;
 }
 
@@ -20,13 +22,22 @@ GlitchOperator::GlitchOperator() {
 	GlitchOperator("vidoes/swamp.mp4");
 }
 
-
-void GlitchOperator::update() {
+// update member variables and perform pixel corrections based on uder input
+void GlitchOperator::update(int _alpha, int _choices, int _threshold, int _numChunk, int _rando, int _step, int _divisor) {
 	// update video
 	video.update();
 	// get pixels from current frame
-	pixels = video.getPixelsRef();
-	switch (choice) {
+	pixels = video.getPixels();
+	// update member variables
+	thresh = _threshold;
+	alpha = _alpha;
+	maxNumChunk = _numChunk;
+	mode = _choices;
+	invert = _rando;
+	yStep = _step;
+	divisor = _divisor;
+
+	switch (mode) {
 		case 0:
 			blend();
 			break;
@@ -39,12 +50,19 @@ void GlitchOperator::update() {
 		case 3:
 			sortByChunkVert();
 			break;
+		case 4:
+			brightnessPeaks();
+			break;
+
+		case 5:
+			break;
 	}
 	if (invert) {
 		randomColorChange();
 	}
 }
 
+// Randomly reorders the RGB channels
 void GlitchOperator::randomColorChange() {
 	for (int x = 0; x < video.getWidth(); ++x) {
 		for (int y = 0; y < video.getHeight(); ++y) {
@@ -58,7 +76,7 @@ void GlitchOperator::randomColorChange() {
 
 // alpha blend each pixel with its neighbor
 void GlitchOperator::blend() {
-	
+	// iterate throuch each pixel
 	for (int x = 0; x < video.getWidth(); ++x) {
 		for (int y = 0; y < video.getHeight()-1; ++y) {
 			ofColor curr = pixels.getColor(x, y);
@@ -113,15 +131,15 @@ void GlitchOperator::simpleSort() {
 }
 
 void GlitchOperator::sortByChunkVert() {
-	numChunk = ofRandom(5, numChunk);
+	maxNumChunk = ofRandom(5, maxNumChunk);
 	for (int y = 0; y < video.getHeight(); ++y) {
-		for (int x = 0; x < video.getWidth()-numChunk; x+= numChunk) {
+		for (int x = 0; x < video.getWidth()- maxNumChunk; x+= maxNumChunk) {
 			vector<ofColor> c;
-			for (int j = 0; j<numChunk; j++) {
+			for (int j = 0; j<maxNumChunk; j++) {
 				c.push_back(pixels.getColor(x + j, y));
 			}
 			ofSort(c, compareBrightness);
-			for (int j = 0; j<numChunk; j++) {
+			for (int j = 0; j<maxNumChunk; j++) {
 				pixels.setColor(x + j, y, c[j]);
 			}
 		}
@@ -130,15 +148,15 @@ void GlitchOperator::sortByChunkVert() {
 }
 
 void GlitchOperator::sortByChunkHor() {
-	numChunk = ofRandom(5, numChunk);
+	maxNumChunk = ofRandom(5, maxNumChunk);
 	for (int x = 0; x < video.getWidth(); ++x) {
-		for (int y = 0; y < video.getHeight() - numChunk; y += numChunk) {
+		for (int y = 0; y < video.getHeight() - maxNumChunk; y += maxNumChunk) {
 			vector<ofColor> c;
-			for (int j = 0; j<numChunk; j++) {
+			for (int j = 0; j<maxNumChunk; j++) {
 				c.push_back(pixels.getColor(x, y+j));
 			}
 			ofSort(c, compareBrightness);
-			for (int j = 0; j<numChunk; j++) {
+			for (int j = 0; j<maxNumChunk; j++) {
 				pixels.setColor(x, y+j, c[j]);
 			}
 		}
@@ -146,31 +164,33 @@ void GlitchOperator::sortByChunkHor() {
 	
 }
 
-void GlitchOperator::peaks() {
-	int yStep = 10;
-	ofImage img;
-	ofColor line = ofColor::aquamarine;
-	img.allocate(video.getWidth(), video.getHeight(), OF_IMAGE_COLOR);
-	img.setColor(ofColor::bisque);
-	for (int y = yStep; y < video.getHeight(); y = yStep) {
+
+// draw lines based on brightness
+void GlitchOperator::brightnessPeaks() {
+	// new 'canvas'
+	ofFbo fbo;
+	// color of the lines
+	ofColor line = ofColor::black;
+	fbo.allocate(video.getWidth(), video.getHeight());
+	fbo.begin();
+	ofBackground(ofColor::white);
+	ofSetColor(line);
+	for (int y = yStep; y < video.getHeight(); y += yStep) {
+		ofPoint prev = ofPoint(0, y + (pixels.getColor(0,y).getBrightness())/divisor);
 		for (int x = 0; x < video.getWidth(); x+=4) {
 			float brightness = pixels.getColor(x, y).getBrightness();
-			float per = brightness / 255.0;
+			// keep lines inside of eachother divide by 255
+			float per = brightness / divisor;
 			int h = (int)(per * yStep);
-			img.setColor(x, y + h, line);
+			ofDrawLine(ofPoint(x, y + h), prev);
+			prev = ofPoint(x, y + h);
 		}
+		////if (!prev.x == video.getWidth() - 1){
+		//	ofDrawLine(prev, ofPoint(video.getWidth()-1,
+		//			   y + (pixels.getColor(video.getWidth() - 1, y).getBrightness()) / divisor));
+		////}
 	}
-	pixels = img.getPixels();
+	fbo.end();
+	// save image to pixels
+	fbo.readToPixels(pixels);
 }
-
-ofImage GlitchOperator::getImage() {
-	return img;
-}
-
-ofPixels GlitchOperator::getPixels() {
-	return pixels;
-}
-
-// Getters
-int GlitchOperator::getImgWidth() { return imgWidth; }
-ofVideoPlayer GlitchOperator::getVideo() { return video; }

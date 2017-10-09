@@ -6,39 +6,40 @@ void ofApp::setup(){
 	// init glitch op
 	int w = 100; 
 	int h = 30;
+	const std::string file = "videos/ny.mp4";
+	glitch = GlitchOperator(file);
 	gui.setup();
 	gui.setPosition(30, 360);
-	gui.add(choices.setup("choices", 0, 0, 3));
-	gui.add(threshold.setup("threshold", 30, 10, 100));
-	gui.add(numChunk.setup("numChunk", 60, 10, 100));
-	gui.add(alpha.setup("alpha", .2, 0, 1));
+	gui.add(mode.setup("Mode", 0, 0, glitch.getNumChoices()));
+	gui.add(threshold.setup("Color threshold", 30, 10, 100));
+	numChunk.setup("Max Chunk", 60, 10, 100);
+	gui.add(&numChunk);
+	gui.add(alpha.setup("Alpha", .2, 0, 1));
+	gui.add(brightnessStep.setup("Brightness step", 7, 1, 20));
+	gui.add(brightnessDivisor.setup("Brightness divisor", 20, 1, 255));
 	gui.add(rando.setup("noise colors", false));
 
-	const std::string file = "videos/ny.mp4";
-	//vid.load(file);
-	//vid.setLoopState(OF_LOOP_NORMAL);
-	//vid.play();
+	
 
-	glitch = GlitchOperator(file);	
+		
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
-	glitch.alpha = alpha;
-	glitch.choice = choices;
-	glitch.thresh = threshold;
-	glitch.numChunk = numChunk;
-	glitch.invert = rando;
-	glitch.update();
+	glitch.update(alpha, mode, threshold, numChunk, rando, brightnessStep, brightnessDivisor);
 	//vid.update();
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+	ofBackground(ofColor::darkGray);
 	ofImage i;
+	ofTexture t;
 	i.setFromPixels(glitch.getPixels());
 	i.draw(0,0);
 	gui.draw();
+	// write what the mode is
+	ofDrawBitmapString(glitch.getModeName(), 30 + gui.getWidth() + 20, 400);
 	//vid.draw(0,0);
 }
 
