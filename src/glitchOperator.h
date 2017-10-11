@@ -8,7 +8,7 @@ class GlitchOperator {
 		GlitchOperator(std::string file);
 		GlitchOperator();
 		//~GlitchOperator();
-		void update(int _alpha, int _choices, int _threshold, int _numChunk, int _rando, int _step, int _divisor);
+		void update(float _alpha, int _choices, int _threshold, int _numChunk, int _rando, int _step, int _divisor);
 		// editing functions
 		void randomColorChange();
 		void sortByChunkVert();

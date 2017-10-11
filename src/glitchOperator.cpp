@@ -23,7 +23,7 @@ GlitchOperator::GlitchOperator() {
 }
 
 // update member variables and perform pixel corrections based on uder input
-void GlitchOperator::update(int _alpha, int _choices, int _threshold, int _numChunk, int _rando, int _step, int _divisor) {
+void GlitchOperator::update(float _alpha, int _choices, int _threshold, int _numChunk, int _rando, int _step, int _divisor) {
 	// update video
 	video.update();
 	// get pixels from current frame

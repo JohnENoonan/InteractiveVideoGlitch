@@ -23,8 +23,10 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 		
+	private:
+		// performer of video editing
 		GlitchOperator glitch;
-
+		// gui objects
 		ofxPanel gui;
 		ofxIntSlider mode;
 		ofxIntSlider numChunk;

@@ -4,10 +4,9 @@ ofVideoPlayer vid;
 //--------------------------------------------------------------
 void ofApp::setup(){
 	// init glitch op
-	int w = 100; 
-	int h = 30;
 	const std::string file = "videos/stairway.mp4";
 	glitch = GlitchOperator(file);
+	// setup GUI
 	gui.setup();
 	gui.setPosition(30, 360);
 	gui.add(mode.setup("Mode", glitch.getMode(), 0, glitch.getNumChoices()));
@@ -18,29 +17,25 @@ void ofApp::setup(){
 	gui.add(brightnessStep.setup("Brightness step", glitch.getYStep(), 1, 20));
 	gui.add(brightnessDivisor.setup("Brightness divisor", glitch.getDivisor(), 1, 255));
 	gui.add(rando.setup("noise colors", glitch.getInvert()));
-
-	
-
-		
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
+	// pass GUI data
 	glitch.update(alpha, mode, threshold, numChunk, rando, brightnessStep, brightnessDivisor);
-	//vid.update();
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
 	ofBackground(ofColor::darkGray);
+	// draw edited video
 	ofImage i;
-	ofTexture t;
 	i.setFromPixels(glitch.getPixels());
 	i.draw(0,0);
+	// draw gui
 	gui.draw();
 	// write what the mode is
 	ofDrawBitmapString(glitch.getModeName(), gui.getPosition().x + gui.getWidth() + 20, gui.getPosition().y + 20);
-	//vid.draw(0,0);
 }
 
 //--------------------------------------------------------------
