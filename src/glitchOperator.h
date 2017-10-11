@@ -20,6 +20,7 @@ class GlitchOperator {
 		int getImgWidth() { return video.getWidth(); }
 		ofVideoPlayer getVideo() { return video; }
 		ofPixels getPixels() { return pixels; }
+
 		int getNumChoices() { return numChoices;  }
 		double getThreshold() { return thresh; }
 		float getAlpha() { return alpha; }
@@ -27,6 +28,8 @@ class GlitchOperator {
 		int getMode() { return mode; }
 		bool getInvert() { return invert; }
 		string getModeName() {return modeNames[mode]; }
+		int getYStep() { return yStep; }
+		int getDivisor() { return divisor; }
 
 
 	private:
@@ -40,7 +43,7 @@ class GlitchOperator {
 		int yStep; // step for brightness lines
 		int divisor; // divisor for lines
 		vector<std::string> modeNames = { "Blend", "Simple Sort", "Sort Horizontal by Chunk",
-			"Sort Horizontal by Chunk", "Brightness Lines", "Normal" };
+			"Sort Vertical by Chunk", "Brightness Lines", "Normal" };
 		// video edited
 		ofVideoPlayer video;
 		// pixel container that is directly edited

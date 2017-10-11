@@ -10,8 +10,8 @@ GlitchOperator::GlitchOperator(std::string file) {
 	video.play();
 	// set base values
 	maxNumChunk = 30;
-	thresh = 50;
-	alpha = .5;
+	thresh = 30;
+	alpha = .2;
 	mode = 0;
 	yStep = 7;
 	divisor = 20;
@@ -19,7 +19,7 @@ GlitchOperator::GlitchOperator(std::string file) {
 }
 
 GlitchOperator::GlitchOperator() {
-	GlitchOperator("vidoes/swamp.mp4");
+	GlitchOperator("videos/swamp.mp4");
 }
 
 // update member variables and perform pixel corrections based on uder input
