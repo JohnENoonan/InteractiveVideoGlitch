@@ -76,33 +76,29 @@ void GlitchOperator::randomColorChange() {
 
 // alpha blend each pixel with its neighbor
 void GlitchOperator::blend() {
-	// iterate throuch each pixel
+	// blend vertically
 	for (int x = 0; x < video.getWidth(); ++x) {
 		for (int y = 0; y < video.getHeight()-1; ++y) {
 			ofColor curr = pixels.getColor(x, y);
 			ofColor below = pixels.getColor(x, y+1);
-			
 			if (std::abs(curr.getBrightness() - below.getBrightness()) > thresh) {
-				//std::cout <<std::abs(curr.getBrightness() - below.getBrightness()) std::abs(curr.getBrightness() - below.getBrightness()) << std::endl;
 				ofColor temp = curr;
 				curr.lerp(below, alpha);
-				//below.lerp(temp, 1);
 				below = temp;
 			}
 			pixels.setColor(x, y, curr);
 			pixels.setColor(x, y + 1, below);
 		}
 	}
+	// blend horizontally
 	for (int x = 0; x < video.getWidth()-1; ++x) {
 		for (int y = 0; y < video.getHeight(); ++y) {
 			ofColor curr = pixels.getColor(x, y);
 			ofColor right = pixels.getColor(x+1, y );
 
 			if (std::abs(curr.getBrightness() - right.getBrightness()) > thresh) {
-				//std::cout <<std::abs(curr.getBrightness() - below.getBrightness()) std::abs(curr.getBrightness() - below.getBrightness()) << std::endl;
 				ofColor temp = curr;
 				curr.lerp(right, alpha);
-				//below.lerp(temp, 1);
 				right = temp;
 			}
 			pixels.setColor(x, y, curr);
@@ -130,6 +126,7 @@ void GlitchOperator::simpleSort() {
 	}
 }
 
+// create chunks of pixels and sort them vertically
 void GlitchOperator::sortByChunkVert() {
 	maxNumChunk = ofRandom(5, maxNumChunk);
 	for (int y = 0; y < video.getHeight(); ++y) {
@@ -147,6 +144,7 @@ void GlitchOperator::sortByChunkVert() {
 	
 }
 
+// sort by chunks of pixels horizontally
 void GlitchOperator::sortByChunkHor() {
 	maxNumChunk = ofRandom(5, maxNumChunk);
 	for (int x = 0; x < video.getWidth(); ++x) {
@@ -164,8 +162,7 @@ void GlitchOperator::sortByChunkHor() {
 	
 }
 
-
-// draw lines based on brightness
+// draw lines on canvas based on brightness to create  image of video
 void GlitchOperator::brightnessPeaks() {
 	// new 'canvas'
 	ofFbo fbo;
@@ -176,19 +173,16 @@ void GlitchOperator::brightnessPeaks() {
 	ofBackground(ofColor::white);
 	ofSetColor(line);
 	for (int y = yStep; y < video.getHeight(); y += yStep) {
+		// the previous pixel point that was sampled
 		ofPoint prev = ofPoint(0, y + (pixels.getColor(0,y).getBrightness())/divisor);
 		for (int x = 0; x < video.getWidth(); x+=4) {
 			float brightness = pixels.getColor(x, y).getBrightness();
-			// keep lines inside of eachother divide by 255
+			// to keep lines inside of eachother divide by 255
 			float per = brightness / divisor;
 			int h = (int)(per * yStep);
 			ofDrawLine(ofPoint(x, y + h), prev);
 			prev = ofPoint(x, y + h);
 		}
-		////if (!prev.x == video.getWidth() - 1){
-		//	ofDrawLine(prev, ofPoint(video.getWidth()-1,
-		//			   y + (pixels.getColor(video.getWidth() - 1, y).getBrightness()) / divisor));
-		////}
 	}
 	fbo.end();
 	// save image to pixels
