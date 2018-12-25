@@ -1,6 +1,10 @@
 # Interactive Video Glitch
 Program to interactively "glitch" or edit a video using openFrameworks. Given a video it will play back based the input from the GUI (currently video and window dimension are hard coded). As of now the program implements various forms of pixel sorting and 1 color changing algorithm.  
 
+<div align="center">
+  <a href="https://vimeo.com/288464737"> <img alt="Program Demo" src="https://github.com/JohnENoonan/InteractiveVideoGlitch/blob/master/videoImg.jpg"/> 
+</div>
+
 ## Inspiration
 To make a tool to glitch (or more accurately create "destructive" edits) a given video and explore interesting algorithms that could be used.
 
@@ -9,3 +13,7 @@ Currently the UI is not very intuitive and minimalistic. An end goal of doing th
 
 ## Note
 If attempting to only download the executable do not download the debug.exe as it is not optimized
+
+
+
+
