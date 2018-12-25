@@ -18,6 +18,7 @@ class GlitchOperator {
 		void brightnessPeaks();
 		// getters
 		int getImgWidth() { return video.getWidth(); }
+		int getImgHeight() { return video.getHeight(); }
 		ofVideoPlayer getVideo() { return video; }
 		ofPixels getPixels() { return pixels; }
 

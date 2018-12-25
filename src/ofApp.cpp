@@ -8,7 +8,7 @@ void ofApp::setup(){
 	glitch = GlitchOperator(file);
 	// setup GUI
 	gui.setup();
-	gui.setPosition(30, 360);
+	gui.setPosition(30, glitch.getImgHeight());
 	gui.add(mode.setup("Mode", glitch.getMode(), 0, glitch.getNumChoices()));
 	gui.add(threshold.setup("Color threshold", glitch.getThreshold(), 10, 100));
 	gui.add(alpha.setup("Alpha", glitch.getAlpha(), 0, 1));
