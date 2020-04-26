@@ -28,11 +28,6 @@ class ofApp : public ofBaseApp{
 		GlitchOperator glitch;
 		// gui objects
 		ofxPanel gui;
-		ofxIntSlider mode;
-		ofxIntSlider numChunk;
-		ofxIntSlider threshold;
-		ofxIntSlider brightnessStep;
-		ofxIntSlider brightnessDivisor;
-		ofxFloatSlider alpha;
-		ofxToggle rando;
+		ofParameterGroup glitchGroup;
+		bool guiShown = true;
 };

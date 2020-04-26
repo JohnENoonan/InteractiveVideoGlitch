@@ -8,14 +8,25 @@ GlitchOperator::GlitchOperator(std::string file) {
 	video.load(file);
 	video.setLoopState(OF_LOOP_NORMAL);
 	video.play();
-	// set base values
-	maxNumChunk = 30;
-	thresh = 30;
-	alpha = .2;
-	mode = 0;
-	yStep = 7;
-	divisor = 20;
-	invert = false;
+}
+
+void GlitchOperator::setup() {
+	fboCanvas.allocate(video.getWidth(), video.getHeight(), GL_RGB);
+	textureCanvas.allocate(video.getWidth(), video.getHeight(), GL_RGB);
+	mode = GlitchMode::BLEND;
+	// set up gui 
+	vidParams.setName("Glitch Controls");
+	vidParams.add(modeInt.set("Mode", 0, 0, 5));
+	modeInt.addListener(this, &GlitchOperator::modeListener);
+	vidParams.add(thresh.set("Brightness Threshold", 30, 10, 100));
+	vidParams.add(alpha.set("Alpha", .2f, 0.0f, 1.0f));
+	vidParams.add(maxNumChunk.set("Max Chunks", 30, 10, 100));
+	vidParams.add(yStep.set("Brightness Step", 7, 1, 20));
+	vidParams.add(divisor.set("Brightness Divisor", 20, 1, 255));
+	vidParams.add(lineThickness.set("Line Thickness", 1, 0, 10));
+	vidParams.add(useLineColor.set("Use Line Color", false));
+	vidParams.add(buildLines.set("Buil Up Lines", false));
+	vidParams.add(invert.set("Noise Colors", false));
 }
 
 GlitchOperator::GlitchOperator() {
@@ -23,42 +34,59 @@ GlitchOperator::GlitchOperator() {
 }
 
 // update member variables and perform pixel corrections based on uder input
-void GlitchOperator::update(float _alpha, int _choices, int _threshold, int _numChunk, int _rando, int _step, int _divisor) {
+void GlitchOperator::update() {
 	// update video
 	video.update();
 	// get pixels from current frame
 	pixels = video.getPixels();
-	// update member variables
-	thresh = _threshold;
-	alpha = _alpha;
-	maxNumChunk = _numChunk;
-	mode = _choices;
-	invert = _rando;
-	yStep = _step;
-	divisor = _divisor;
 
 	switch (mode) {
-		case 0:
+		case GlitchMode::BLEND:
 			blend();
 			break;
-		case 1:
+		case GlitchMode::SIMPLE_SORT:
 			simpleSort();
 			break;
-		case 2:
+		case GlitchMode::HORIZONTAL_CHUNK:
 			sortByChunkHor();
 			break;
-		case 3:
+		case GlitchMode::VERTICAL_CHUNK:
 			sortByChunkVert();
 			break;
-		case 4:
+		case GlitchMode::BRIGHTNESS:
 			brightnessPeaks();
 			break;
 
-		case 5:
+		case GlitchMode::DEFAULT:
 			break;
 	}
 	if (invert) {
 		randomColorChange();
+	}
+}
+
+void GlitchOperator::draw() {
+	//ofImage i;
+	
+	//i.setFromPixels(pixels);
+	//i.draw(0, 0);
+	switch (mode) {
+		case GlitchMode::BLEND:
+		case GlitchMode::SIMPLE_SORT:
+		case GlitchMode::HORIZONTAL_CHUNK:
+		case GlitchMode::VERTICAL_CHUNK: {
+			
+			textureCanvas.loadData(pixels);
+			textureCanvas.draw(0, 0);
+			break;
+		}
+		case GlitchMode::BRIGHTNESS:
+			fboCanvas.draw(0, 0);
+			break;
+		default: {
+			video.draw(0, 0);
+			break;
+		}
 	}
 }
 
@@ -128,15 +156,15 @@ void GlitchOperator::simpleSort() {
 
 // create chunks of pixels and sort them vertically
 void GlitchOperator::sortByChunkVert() {
-	maxNumChunk = ofRandom(5, maxNumChunk);
+	int chunks = ofRandom(5, maxNumChunk);
 	for (int y = 0; y < video.getHeight(); ++y) {
-		for (int x = 0; x < video.getWidth()- maxNumChunk; x+= maxNumChunk) {
+		for (int x = 0; x < video.getWidth()- chunks; x+= chunks) {
 			vector<ofColor> c;
-			for (int j = 0; j<maxNumChunk; j++) {
+			for (int j = 0; j< chunks; j++) {
 				c.push_back(pixels.getColor(x + j, y));
 			}
 			ofSort(c, compareBrightness);
-			for (int j = 0; j<maxNumChunk; j++) {
+			for (int j = 0; j< chunks; j++) {
 				pixels.setColor(x + j, y, c[j]);
 			}
 		}
@@ -146,15 +174,15 @@ void GlitchOperator::sortByChunkVert() {
 
 // sort by chunks of pixels horizontally
 void GlitchOperator::sortByChunkHor() {
-	maxNumChunk = ofRandom(5, maxNumChunk);
+	int chunks = ofRandom(5, maxNumChunk);
 	for (int x = 0; x < video.getWidth(); ++x) {
-		for (int y = 0; y < video.getHeight() - maxNumChunk; y += maxNumChunk) {
+		for (int y = 0; y < video.getHeight() - chunks; y += chunks) {
 			vector<ofColor> c;
-			for (int j = 0; j<maxNumChunk; j++) {
+			for (int j = 0; j< chunks; j++) {
 				c.push_back(pixels.getColor(x, y+j));
 			}
 			ofSort(c, compareBrightness);
-			for (int j = 0; j<maxNumChunk; j++) {
+			for (int j = 0; j< chunks; j++) {
 				pixels.setColor(x, y+j, c[j]);
 			}
 		}
@@ -164,27 +192,88 @@ void GlitchOperator::sortByChunkHor() {
 
 // draw lines on canvas based on brightness to create  image of video
 void GlitchOperator::brightnessPeaks() {
-	// new 'canvas'
-	ofFbo fbo;
 	// color of the lines
 	ofColor line = ofColor::black;
-	fbo.allocate(video.getWidth(), video.getHeight());
-	fbo.begin();
-	ofBackground(ofColor::white);
-	ofSetColor(line);
-	for (int y = yStep; y < video.getHeight(); y += yStep) {
-		// the previous pixel point that was sampled
-		ofPoint prev = ofPoint(0, y + (pixels.getColor(0,y).getBrightness())/divisor);
-		for (int x = 0; x < video.getWidth(); x+=4) {
-			float brightness = pixels.getColor(x, y).getBrightness();
-			// to keep lines inside of eachother divide by 255
-			float per = brightness / divisor;
-			int h = (int)(per * yStep);
-			ofDrawLine(ofPoint(x, y + h), prev);
-			prev = ofPoint(x, y + h);
+	fboCanvas.begin();
+		ofSetLineWidth(lineThickness);
+		if (useLineColor) {
+			if (!buildLines) {
+				ofBackground(ofColor::black);
+			}
+		}
+		else {
+			ofBackground(ofColor::white);
+		}
+		for (int y = yStep; y < video.getHeight(); y += yStep) {
+			// the previous pixel point that was sampled
+			ofPoint prev = ofPoint(0, y + (pixels.getColor(0,y).getBrightness())/divisor);
+			for (int x = 0; x < video.getWidth(); x+=4) {
+				ofColor pixCol = pixels.getColor(x, y);
+				float brightness = pixCol.getBrightness();
+				if (!useLineColor) {
+					ofSetColor(line);
+				}
+				else {
+					
+					ofSetColor(pixCol);
+				}
+				
+				// to keep lines inside of eachother divide by 255
+				float per = brightness / divisor;
+				int h = (int)(per * yStep);
+				ofDrawLine(ofPoint(x, y + h), prev);
+				prev = ofPoint(x, y + h);
+			}
+		}
+	fboCanvas.end();
+	// save image to pixels
+	fboCanvas.readToPixels(pixels);
+}
+
+string GlitchOperator::getModeName() const {
+	switch (mode) {
+		case GlitchMode::BLEND:
+			return "Blend";
+			break;
+		case GlitchMode::SIMPLE_SORT:
+			return "Simple Sort";
+			break;
+		case GlitchMode::HORIZONTAL_CHUNK:
+			return "Horizontal";
+			break;
+		case GlitchMode::VERTICAL_CHUNK:
+			return "Vertical";
+			break;
+		case GlitchMode::BRIGHTNESS:
+			return "Peaks";
+			break;
+		default: {
+			return "Normal";
+			break;
 		}
 	}
-	fbo.end();
-	// save image to pixels
-	fbo.readToPixels(pixels);
+}
+
+void GlitchOperator::modeListener(int& val) {
+	switch (val) {
+		case 0:
+			mode = GlitchMode::BLEND;
+			break;
+		case 1:
+			mode = GlitchMode::SIMPLE_SORT;
+			break;
+		case 2:
+			mode = GlitchMode::HORIZONTAL_CHUNK;
+			break;
+		case 3:
+			mode = GlitchMode::VERTICAL_CHUNK;
+			break;
+		case 4:
+			mode = GlitchMode::BRIGHTNESS;
+			break;
+		default: {
+			mode = GlitchMode::DEFAULT;
+			break;
+		}
+	}
 }
