@@ -202,7 +202,8 @@ void GlitchOperator::brightnessPeaks() {
 			}
 		}
 		else {
-			ofBackground(ofColor::white);
+			ofSetColor(ofColor::white);
+			ofBackground(ofColor::black);
 		}
 		for (int y = yStep; y < video.getHeight(); y += yStep) {
 			// the previous pixel point that was sampled
@@ -210,11 +211,7 @@ void GlitchOperator::brightnessPeaks() {
 			for (int x = 0; x < video.getWidth(); x+=4) {
 				ofColor pixCol = pixels.getColor(x, y);
 				float brightness = pixCol.getBrightness();
-				if (!useLineColor) {
-					ofSetColor(line);
-				}
-				else {
-					
+				if (useLineColor) {
 					ofSetColor(pixCol);
 				}
 				
