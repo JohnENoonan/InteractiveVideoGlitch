@@ -4,8 +4,16 @@ ofVideoPlayer vid;
 //--------------------------------------------------------------
 void ofApp::setup(){
 	// init glitch op
-	const std::string file = "videos/cb1280.mp4";
-	glitch = GlitchOperator(file);
+	//ofSetWindowShape(1280, 720);
+	std::string vidFile = "videos/stairway.mp4";
+	if (arguments.size() >= 2) {
+		vidFile = arguments[1];
+		if (arguments.size() == 3) {
+			renderOut = (bool)(ofToLower(arguments[2]) == "true");
+		}
+	}	
+	cout << vidFile << endl;
+	glitch = GlitchOperator(vidFile);
 	glitch.setup();
 	ofSetWindowShape(glitch.getImgWidth(), glitch.getImgHeight());
 	ofSetFrameRate(30);
@@ -19,6 +27,9 @@ void ofApp::setup(){
 void ofApp::update(){
 	// pass GUI data
 	glitch.update();
+	if (renderOut) {
+		glitch.getImage().save("render/" + ofToString(ofGetFrameNum()) + ".png");
+	}
 }
 
 //--------------------------------------------------------------
@@ -35,12 +46,8 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-	switch (key) {
-		case 't': {
-			guiShown = !guiShown;
-			break;
-		}
-		default: break;
+	if (key == 't' || key == '~') {
+		guiShown = !guiShown;
 	}
 }
 

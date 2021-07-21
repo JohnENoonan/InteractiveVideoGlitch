@@ -7,6 +7,7 @@
 class ofApp : public ofBaseApp{
 
 	public:
+		//ofApp(vector<string> args) { arguments = args; }
 		void setup();
 		void update();
 		void draw();
@@ -22,6 +23,7 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
+		vector<string> arguments;
 		
 	private:
 		// performer of video editing
@@ -29,5 +31,6 @@ class ofApp : public ofBaseApp{
 		// gui objects
 		ofxPanel gui;
 		ofParameterGroup glitchGroup;
-		bool guiShown = true;
+		bool guiShown = true;		
+		bool renderOut = false;
 };
