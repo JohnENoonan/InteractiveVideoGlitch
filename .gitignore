@@ -11,6 +11,7 @@ libs/openFrameworksCompiled/lib/*/*
 bin/data/videos
 bin/data/renders
 bin/data/render
+.vs
 
 # apothecary
 scripts/apothecary
