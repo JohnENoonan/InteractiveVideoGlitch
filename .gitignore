@@ -8,6 +8,9 @@ openFrameworksDebug.a
 openFrameworksUniversal.a
 libs/openFrameworksCompiled/lib/*/*
 !libs/openFrameworksCompiled/lib/*/.gitkeep
+bin/data/videos
+bin/data/renders
+bin/data/render
 
 # apothecary
 scripts/apothecary
