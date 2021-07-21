@@ -90,6 +90,34 @@ void GlitchOperator::draw() {
 	}
 }
 
+ofImage GlitchOperator::getImage()
+{
+	switch (mode) {
+		case GlitchMode::BLEND:
+		case GlitchMode::SIMPLE_SORT:
+		case GlitchMode::HORIZONTAL_CHUNK:
+		case GlitchMode::VERTICAL_CHUNK: {
+			ofImage image;
+			image.setFromPixels(pixels);
+			return image;
+		}
+		case GlitchMode::BRIGHTNESS: {
+			ofPixels temppixels;
+			fboCanvas.readToPixels(temppixels);
+			ofImage image;
+			image.setFromPixels(temppixels);
+			return image;
+		}
+		default: {
+			ofPixels temppixels;
+			temppixels = video.getPixels();
+			ofImage image;
+			image.setFromPixels(temppixels);
+			return image;
+		}
+	}
+}
+
 // Randomly reorders the RGB channels
 void GlitchOperator::randomColorChange() {
 	for (int x = 0; x < video.getWidth(); ++x) {

@@ -32,7 +32,7 @@ class GlitchOperator {
 		int getImgHeight() { return video.getHeight(); }
 		ofVideoPlayer getVideo() { return video; }
 		ofPixels getPixels() { return pixels; }
-
+		ofImage getImage();
 		int getNumChoices() { return numChoices;  }
 		double getThreshold() { return thresh; }
 		float getAlpha() { return alpha; }
